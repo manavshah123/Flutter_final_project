@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class DatabaseManager {
+class DatabaseTaskManager {
   final CollectionReference profileList =
-  FirebaseFirestore.instance.collection('users');
+  FirebaseFirestore.instance.collection('task');
 
 
 
