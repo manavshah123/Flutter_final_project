@@ -1,16 +1,18 @@
-# texttask
+# Employee management app
 
-A new Flutter project.
+<h1 align="center"> <center><img src="https://github.com/manavshah123/Search_Fruit_Ecommerce/blob/master/OP/animation_500_kzy2siu2.gif"  width="400"></h1>
 
-## Getting Started
+## Steps to run these project
+1. Download or clone the project and open it in Android Studio
+2. open pubspec.yaml
+  
+## Functionality and Components
+  1. Login and register with firebase
+  2. Admin add task
+  3. User view particular task which is assigned to particular user
+  
+## Output
+<br>
+<p float="left">
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+</p>
