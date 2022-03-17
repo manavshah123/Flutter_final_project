@@ -67,7 +67,7 @@ class _homescreenState extends State<homescreen> {
           },
         ),
         title: Text(
-          "Hello artisan",
+          "Hello ${loggedInUser.fname.toString()}",
           style: TextStyle(fontSize: 20, color: Colors.black),
         ),
         actions: [
