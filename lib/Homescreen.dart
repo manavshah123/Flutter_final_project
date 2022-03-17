@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:texttask/DatabaseManager/DatabaseManager.dart';
 import 'package:texttask/DatabaseManager/DatabaseTaskManager.dart';
 import 'package:texttask/model/user_model.dart';
+import 'package:texttask/profile.dart';
 
 class homescreen extends StatefulWidget {
   const homescreen({Key? key}) : super(key: key);
@@ -18,9 +22,24 @@ class _homescreenState extends State<homescreen> {
 
   User? user = FirebaseAuth.instance.currentUser;
   UserModel loggedInUser = UserModel();
-  List tasklistname = [];
-  List tasklistdes = [];
-  List tasklistuser = [];
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.uid)
+        .get()
+        .then((value) {
+      loggedInUser = UserModel.fromMap(value.data());
+      DatabaseTaskManager().getUsersList(loggedInUser).then((value) {
+        setState(() {
+
+        });
+      });
+    });
+  }
+
   String slected_user = 'manav';
 
   String dropdownValue = 'One';
@@ -31,27 +50,10 @@ class _homescreenState extends State<homescreen> {
     'assets/ban4.png'
   ];
 
-
-  @override
-  void initState() {
-    super.initState();
-    FirebaseFirestore.instance.collection("users").doc(user!.uid).get().then((value){
-      this.loggedInUser = UserModel.fromMap(value.data());
-      setState(() {
-        fetchTaskDatabaseList();
-      });
-    });
-  }
-
-
   @override
   Widget build(BuildContext context) {
     //fetchDatabaseList();
-
-
-
     return Scaffold(
-
       appBar: AppBar(
         backgroundColor: Colors.redAccent,
         elevation: 0,
@@ -64,21 +66,36 @@ class _homescreenState extends State<homescreen> {
             Navigator.of(context).pop();
           },
         ),
-        title: Text("Hello artisan", style: TextStyle(fontSize: 20, color: Colors.black),),
+        title: Text(
+          "Hello artisan",
+          style: TextStyle(fontSize: 20, color: Colors.black),
+        ),
         actions: [
           IconButton(
-          onPressed: () {},
-          icon: Icon(Icons.notifications, color: Colors.black))
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                    (context),
+                    MaterialPageRoute(builder: (context) => profile()),
+                        (route) => false);
+              },
+              icon: Icon(Icons.person, color: Colors.black))
         ],
       ),
-
       body: Column(
         children: [
-          SizedBox(height: 30,),
+          SizedBox(
+            height: 30,
+          ),
           Row(
             children: [
               SizedBox(width: 25),
-              Text("Recent Task", style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,),),
+              Text(
+                "Recent Task",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
           Container(
@@ -98,121 +115,141 @@ class _homescreenState extends State<homescreen> {
                 //for onTap to redirect to another screen
                 return Container(
                     child: Column(
-                      children: [
-                        GestureDetector(
-                          child: Container(
-                            //ClipRRect for image border radius
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: Image.asset(
-                                imageList[i],
-                                width: 1000,
-                                height: 150,
-                              ),
-                            ),
+                  children: [
+                    GestureDetector(
+                      child: Container(
+                        //ClipRRect for image border radius
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.asset(
+                            imageList[i],
+                            width: 1000,
+                            height: 150,
                           ),
-                          onTap: () {
-                            var url = imageList[i];
-                            print(url.toString());
-                          },
                         ),
-
-                      ],
-                    ));
+                      ),
+                      onTap: () {
+                        var url = imageList[i];
+                        print(url.toString());
+                      },
+                    ),
+                  ],
+                ));
               },
             ),
           ),
           Row(
             children: [
               SizedBox(width: 25),
-              Text("All Task", style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,),),
+              Text(
+                "All Task",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
-          SingleChildScrollView(
+          Expanded(
             child: ListView.builder(
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
                 padding: const EdgeInsets.all(8),
                 itemCount: tasklistname.length,
                 itemBuilder: (BuildContext context, int index) {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
-                      color: Colors.redAccent,
-                      child: Column(
-                        children: [
-
-                          Row(
-                            children: [
-                              SizedBox(width: 20,height: 40,),
-                              Text(tasklistname[index], style: TextStyle(fontSize: 20, color: Colors.white),),
-                            ],
-                          ),
-                          SizedBox(height: 10,),
-                          Row(
-                            children: [
-                              SizedBox(width: 20,),
-                              Text('Task Assigned to: ', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400,color: Colors.white),),
-                              Text(tasklistuser[index], style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold,color: Colors.white),),
-                            ],
-                          ),
-                          SizedBox(height: 20,),
-                          Row(
-                            children: [
-                              SizedBox(width: 20,),
-                              Text('Description', style: TextStyle(color: Colors.white),),
-                            ],
-                          ),
-                          
-                          Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Container(
-                                alignment: Alignment.bottomLeft,
-                                child: Text(tasklistdes[index], style: TextStyle(color: Colors.white),)),
-                          ),
-
-                        ],
-                      )
-                    ),
+                        color: Colors.redAccent,
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 40,
+                                ),
+                                Text(
+                                  tasklistname[index],
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.white),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                Text(
+                                  'Task Assigned to: ',
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.white),
+                                ),
+                                Text(
+                                  tasklistuser[index],
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                Text(
+                                  'Description',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Container(
+                                  alignment: Alignment.bottomLeft,
+                                  child: Text(
+                                    tasklistdes[index],
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                            ),
+                          ],
+                        )),
                   );
-                }
-            ),
+                }),
           ),
         ],
       ),
+      floatingActionButton: loggedInUser.type == 'admin'
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                showModalBottomSheet<void>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return dropdown();
+                  },
+                ).then((value) {
+                  Timer(Duration(seconds: 3), (){
+                    setState(() {
 
-      floatingActionButton: loggedInUser.type == 'admin'? FloatingActionButton.extended(
-        onPressed: () {
-          showModalBottomSheet<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return dropdown();
-            },
-          );
-        },
-        label: const Text('Add Task'),
-        icon: const Icon(Icons.add_circle),
-        backgroundColor: Colors.redAccent,
-      ):null,
+                    });
+                  });
+                });
+              },
+              label: const Text('Add Task'),
+              icon: const Icon(Icons.add_circle),
+              backgroundColor: Colors.black87,
+            )
+          : null,
     );
-  }
-
-  void fetchTaskDatabaseList() async{
-    List result = await DatabaseTaskManager().getUsersList();
-    if (result == null) {
-      print('Unable to retrive');
-    }
-    else {
-      setState(() {
-        result.forEach((element) {
-          tasklistname.add(element['name'].toString());
-          tasklistdes.add(element['des'].toString());
-          tasklistuser.add(element['user'].toString());
-        });
-      });
-    }
-    print("aaaaaaaaaaaaaaaaaaaaaaaa");
-    print(tasklistname);
   }
 
 }
@@ -225,7 +262,6 @@ class dropdown extends StatefulWidget {
 }
 
 class _dropdownState extends State<dropdown> {
-
   List<String> userlist = [];
   List<String> tasklist = [];
   User? user = FirebaseAuth.instance.currentUser;
@@ -239,7 +275,11 @@ class _dropdownState extends State<dropdown> {
   @override
   void initState() {
     super.initState();
-    FirebaseFirestore.instance.collection("users").doc(user!.uid).get().then((value){
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.uid)
+        .get()
+        .then((value) {
       this.loggedInUser = UserModel.fromMap(value.data());
       setState(() {
         fetchDatabaseList();
@@ -247,14 +287,11 @@ class _dropdownState extends State<dropdown> {
     });
   }
 
-
-    fetchDatabaseList() async{
-
+  fetchDatabaseList() async {
     List result = await DatabaseManager().getUsersList();
-    if(result == null){
+    if (result == null) {
       print('Unable to retrive');
-    }
-    else{
+    } else {
       setState(() {
         result.forEach((element) {
           userlist.add(element['fname'].toString());
@@ -262,18 +299,16 @@ class _dropdownState extends State<dropdown> {
         slected_user = userlist[0];
       });
     }
-
   }
 
   @override
   Widget build(BuildContext context) {
-
     final taskField = TextFormField(
       autofocus: false,
       controller: taskcontroller,
       keyboardType: TextInputType.text,
-      validator: (value){
-        if(value!.isEmpty){
+      validator: (value) {
+        if (value!.isEmpty) {
           return ("Please enter your task title");
         }
         return null;
@@ -283,27 +318,29 @@ class _dropdownState extends State<dropdown> {
       },
       textInputAction: TextInputAction.next,
       decoration: InputDecoration(
-          prefixIcon: Icon(Icons.work, color: Colors.white,),
+          prefixIcon: Icon(
+            Icons.work,
+            color: Colors.white,
+          ),
           contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
           hintText: "Task title",
-          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+          focusedBorder:
+              OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+          enabledBorder:
+              OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
       style: TextStyle(color: Colors.white),
-
     );
 
     final desField = TextFormField(
       autofocus: false,
       controller: descontroller,
-      validator: (value){
+      validator: (value) {
         RegExp regex = new RegExp(r'^.{25,}$');
-        if(value!.isEmpty){
+        if (value!.isEmpty) {
           return ("please Enter Your task discription");
-
         }
-        if(!regex.hasMatch(value))
-        {
+        if (!regex.hasMatch(value)) {
           return ("please Enter valid discription(Minimum 25 character)");
         }
       },
@@ -312,12 +349,16 @@ class _dropdownState extends State<dropdown> {
       },
       textInputAction: TextInputAction.done,
       decoration: InputDecoration(
-          prefixIcon: Icon(Icons.description, color: Colors.white,),
-          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+          prefixIcon: Icon(
+            Icons.description,
+            color: Colors.white,
+          ),
+          focusedBorder:
+              OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+          enabledBorder:
+              OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
           contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
           hintText: "Task Description",
-
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           )),
@@ -332,13 +373,23 @@ class _dropdownState extends State<dropdown> {
         padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
         minWidth: MediaQuery.of(context).size.width,
         onPressed: () {
+          FirebaseFirestore.instance.collection('task').add({
+            'name': taskcontroller.text,
+            'des': descontroller.text,
+            'user': slected_user.toString()
+          }).then((value) {
+            DatabaseTaskManager().getUsersList(loggedInUser);
+            Navigator.pop(context);
+          });
           //logIn(taskcontroller.text, descontroller.text);
         },
         child: Text(
           "Add Task",
           textAlign: TextAlign.center,
           style: TextStyle(
-              fontSize: 20, color: Colors.redAccent, fontWeight: FontWeight.bold),
+              fontSize: 20,
+              color: Colors.redAccent,
+              fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -352,19 +403,21 @@ class _dropdownState extends State<dropdown> {
             child: Padding(
               padding: const EdgeInsets.all(15.0),
               child: Column(
-
                 children: <Widget>[
                   SizedBox(
                     height: 30,
                   ),
-                  Text("Add Task", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20.0),),
+                  Text(
+                    "Add Task",
+                    style:
+                        TextStyle(fontWeight: FontWeight.w600, fontSize: 20.0),
+                  ),
                   Form(
                     key: _formkey,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-
                         SizedBox(
                           height: 30,
                         ),
@@ -373,14 +426,16 @@ class _dropdownState extends State<dropdown> {
                           height: 20,
                         ),
                         desField,
-
                         SizedBox(
                           height: 25,
                         ),
                         Container(
                           child: DropdownButton<String>(
                             value: slected_user,
-                            icon: const Icon(Icons.arrow_downward, color: Colors.white,),
+                            icon: const Icon(
+                              Icons.arrow_downward,
+                              color: Colors.white,
+                            ),
                             elevation: 16,
                             style: const TextStyle(color: Colors.black),
                             underline: Container(
