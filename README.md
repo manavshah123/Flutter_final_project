@@ -1,6 +1,6 @@
 # Employee management app
 
-<h1 align="center"> <center><img src="https://github.com/manavshah123/Search_Fruit_Ecommerce/blob/master/OP/animation_500_kzy2siu2.gif"  width="400"></h1>
+<h1 align="center"> <center><img src="https://github.com/manavshah123/Flutter_final_project/blob/master/output/animation_500_l0xepu7z.gif"  width="400"></h1>
 
 ## Steps to run these project
 1. Download or clone the project and open it in Android Studio
