@@ -14,5 +14,7 @@
 ## Output
 <br>
 <p float="left">
-
+  <img src="https://github.com/manavshah123/Flutter_final_project/blob/master/output/Screenshot_1647666581.png" width = 250/>
+  <img src="https://github.com/manavshah123/Flutter_final_project/blob/master/output/Screenshot_1647666588.png" width = 250/>
+  <img src="https://github.com/manavshah123/Flutter_final_project/blob/master/output/Screenshot_1647666498.png" width = 250/>
 </p>
