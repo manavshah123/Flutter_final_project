@@ -19,9 +19,9 @@ class homescreen extends StatefulWidget {
 }
 
 class _homescreenState extends State<homescreen> {
-
   User? user = FirebaseAuth.instance.currentUser;
   UserModel loggedInUser = UserModel();
+  String slected_status = 'Not yet started';
 
   @override
   void initState() {
@@ -33,9 +33,7 @@ class _homescreenState extends State<homescreen> {
         .then((value) {
       loggedInUser = UserModel.fromMap(value.data());
       DatabaseTaskManager().getUsersList(loggedInUser).then((value) {
-        setState(() {
-
-        });
+        setState(() {});
       });
     });
   }
@@ -76,7 +74,7 @@ class _homescreenState extends State<homescreen> {
                 Navigator.pushAndRemoveUntil(
                     (context),
                     MaterialPageRoute(builder: (context) => profile()),
-                        (route) => false);
+                    (route) => false);
               },
               icon: Icon(Icons.person, color: Colors.black))
         ],
@@ -221,6 +219,60 @@ class _homescreenState extends State<homescreen> {
                                     style: TextStyle(color: Colors.white),
                                   )),
                             ),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 25,
+                                ),
+                                Text(
+                                  'Current Status',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                SizedBox(
+                                  width: 15,
+                                ),
+                                DropdownButton<String>(
+                                  value: taskstatus[index],
+                                  icon: const Icon(Icons.arrow_downward),
+                                  elevation: 16,
+                                  style:
+                                      const TextStyle(color: Colors.deepPurple),
+                                  underline: Container(
+                                    height: 2,
+                                    color: Colors.deepPurpleAccent,
+                                  ),
+                                  onChanged: (String? newValue) {
+                                    DatabaseTaskManager()
+                                        .updatestatus(taskid[index], newValue)
+                                        .then((value) {
+                                      Timer(Duration(seconds: 1), (){
+                                        setState(() {
+
+                                        });
+                                      });
+                                    });
+                                    print(newValue);
+                                    print(taskid[index]);
+                                    taskstatus[index] = newValue!;
+                                  },
+                                  items: <String>[
+                                    'Not yet started',
+                                    'Ongoing',
+                                    'Paused',
+                                    'Completed'
+                                  ].map<DropdownMenuItem<String>>(
+                                      (String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
                           ],
                         )),
                   );
@@ -237,10 +289,8 @@ class _homescreenState extends State<homescreen> {
                     return dropdown();
                   },
                 ).then((value) {
-                  Timer(Duration(seconds: 3), (){
-                    setState(() {
-
-                    });
+                  Timer(Duration(seconds: 3), () {
+                    setState(() {});
                   });
                 });
               },
@@ -251,7 +301,6 @@ class _homescreenState extends State<homescreen> {
           : null,
     );
   }
-
 }
 
 class dropdown extends StatefulWidget {
@@ -264,6 +313,7 @@ class dropdown extends StatefulWidget {
 class _dropdownState extends State<dropdown> {
   List<String> userlist = [];
   List<String> tasklist = [];
+
   User? user = FirebaseAuth.instance.currentUser;
   UserModel loggedInUser = UserModel();
   String slected_user = 'manav';
@@ -373,10 +423,13 @@ class _dropdownState extends State<dropdown> {
         padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
         minWidth: MediaQuery.of(context).size.width,
         onPressed: () {
-          FirebaseFirestore.instance.collection('task').add({
+          String id = DateTime.now().toString();
+          FirebaseFirestore.instance.collection('task').doc(id).set({
             'name': taskcontroller.text,
             'des': descontroller.text,
-            'user': slected_user.toString()
+            'user': slected_user.toString(),
+            'status': 'Not yet started',
+            'tid': id,
           }).then((value) {
             DatabaseTaskManager().getUsersList(loggedInUser);
             Navigator.pop(context);

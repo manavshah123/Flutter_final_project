@@ -146,26 +146,7 @@ class _loginState extends State<login> {
                     SizedBox(
                       height: 10,
                     ),
-                    Row(
-                      children: [
-                        Radio(value: 'user', groupValue: type, onChanged: (value) {
-                          setState(() {
-                            type = value.toString();
-                          });
-                        }),
-                        Text("User"),
-                      ],
-                    ),
-                        Row(
-                          children: [
-                            Radio(value: 'admin', groupValue: type, onChanged: (value) {
-                              setState(() {
-                                type = value.toString();
-                              });
-                            }),
-                            Text("Admin"),
-                          ],
-                        ),
+
                     SizedBox(
                       height: 10,
                     ),

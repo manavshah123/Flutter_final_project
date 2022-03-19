@@ -7,6 +7,8 @@ import '../model/user_model.dart';
 List tasklistname = [];
 List tasklistdes = [];
 List tasklistuser = [];
+List taskstatus = [];
+List taskid = [];
 UserModel loggedInUser = UserModel();
 
 class DatabaseTaskManager {
@@ -14,6 +16,13 @@ class DatabaseTaskManager {
   FirebaseFirestore.instance.collection('task');
   User? user = FirebaseAuth.instance.currentUser;
 
+  Future updatestatus (String id, taskupdate) async{
+    FirebaseFirestore.instance.collection('task').doc(id).update({'status': taskupdate});
+    if (taskupdate == "Completed"){
+      FirebaseFirestore.instance.collection('task').doc(id).delete();
+      DatabaseTaskManager().getUsersList(loggedInUser);
+    }
+  }
   Future getUsersList(UserModel loggedInUser) async {
     List itemsList = [];
     try {
@@ -22,6 +31,8 @@ class DatabaseTaskManager {
         tasklistname.clear();
         tasklistdes.clear();
         tasklistuser.clear();
+        taskstatus.clear();
+        taskid.clear();
 
         querySnapshot.docs.forEach((element) {
           itemsList.add(element.data());
@@ -30,10 +41,20 @@ class DatabaseTaskManager {
         print(loggedInUser.fname.toString());
         itemsList.forEach((element) {
           print(element['user']);
-          if(element['user'].toString() == loggedInUser.fname.toString()){
+          if((element['user'].toString() == loggedInUser.fname.toString()) && loggedInUser.type.toString() == 'user'){
             tasklistname.add(element['name'].toString());
             tasklistdes.add(element['des'].toString());
             tasklistuser.add(element['user'].toString());
+            taskstatus.add(element['status'].toString());
+            taskid.add(element['tid'].toString());
+
+          }
+          else{
+            tasklistname.add(element['name'].toString());
+            tasklistdes.add(element['des'].toString());
+            tasklistuser.add(element['user'].toString());
+            taskstatus.add(element['status'].toString());
+            taskid.add(element['tid'].toString());
           }
         });
       });

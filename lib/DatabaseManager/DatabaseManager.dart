@@ -12,10 +12,7 @@ class DatabaseManager {
     try {
       await profileList.get().then((querySnapshot) {
         querySnapshot.docs.forEach((element) {
-          print('*******************');
-
           itemsList.add(element.data());
-          print(itemsList);
         });
       });
       return itemsList;
